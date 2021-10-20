@@ -45,14 +45,14 @@ pub fn parse_raw_data(raw_data: &str) -> Vec<u8> {
 pub fn parse_record(data: Vec<u8>) -> Record {
     let mut iterator = data.into_iter();
     let actual = iterator.next().unwrap_or_default();
-    let mut values: [u8; 784] = [0; 784];
+    let mut image: [u8; 784] = [0; 784];
     let mut index = 0;
     for i in iterator {
-        values[index] = i;
+        image[index] = i;
         index += 1;
     }
     Record {
         actual,
-        image: values,
+        image,
     }
 }
