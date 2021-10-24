@@ -6,14 +6,12 @@ pub struct Record {
     pub image: [u8; 784],
 }
 
-use self::loading::*;
-
 pub fn get_data(filename: String) -> io::Result<Vec<Record>> {
     let mut results = Vec::new();
-    let contents = get_raw_data(filename);
+    let contents = loading::get_raw_data(filename);
     for line in contents {
-        let parsed = parse_raw_data(&line).clone();
-        let rec = parse_record(parsed);
+        let parsed = loading::parse_raw_data(&line).clone();
+        let rec = loading::parse_record(parsed);
         results.push(rec);
     }
     Ok(results)
