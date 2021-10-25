@@ -11,7 +11,5 @@ Functions:
     * Manhattan distance
     * Euclidean distance
 * Output (pretty bad) ASCII art
-* Tracking errors
-* Running code in parallel (goroutines)
-* Using channels to communicate between functions
 
+*Note: I hit a breaking point: threading. The ownership model in Rust is giving me a bit of a problem when I try to spin up threads and use channels to communicate. Still working on a solution.*
