@@ -1,4 +1,5 @@
 pub struct Classifier {
+    pub name: String,
     training_data: Vec<super::Record>,
     algorithm: fn(input: u8, test: u8) -> i64,
 }
@@ -25,6 +26,7 @@ impl Classifier {
 
 pub fn get_manhattan_classifier(training_data: Vec<super::Record>) -> Classifier {
     Classifier {
+        name: "Manhattan Classifier".to_string(),
         training_data,
         algorithm: manhattan_algorithm,
     }
@@ -36,6 +38,7 @@ fn manhattan_algorithm(input: u8, test: u8) -> i64 {
 
 pub fn get_euclidean_classifier(training_data: Vec<super::Record>) -> Classifier {
     Classifier {
+        name: "Euclidean Classifier".to_string(),
         training_data,
         algorithm: euclidean_algorithm,
     }
