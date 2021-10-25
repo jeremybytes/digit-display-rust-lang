@@ -38,3 +38,9 @@ pub fn parse_record(data: Vec<u8>) -> super::Record {
         image,
     }
 }
+
+pub fn split_data_sets(data: Vec<super::Record>, offset: usize, count: usize) -> (Vec<super::Record>, Vec<super::Record>) {
+    let training = [&data[..offset], &data[(offset+count)..]].concat();
+    let validation = [&data[offset..(offset+count)]].concat();
+    (training, validation)
+}

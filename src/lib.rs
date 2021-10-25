@@ -1,23 +1,25 @@
-mod loading; // brings in everything in "loading.rs" as "loading" module
+mod loader; // brings in everything in "loader.rs" as "loader" module
 mod display;
 
 use std::io;
 
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub struct Record {
     pub actual: u8,
     pub image: [u8; 784],
 }
 
-pub fn get_data(filename: String) -> io::Result<Vec<Record>> {
+pub fn get_data(filename: String) -> io::Result<(Vec<Record>, Vec<Record>)> {
     let mut results = Vec::new();
-    let contents = loading::get_raw_data(filename);
+    let contents = loader::get_raw_data(filename);
     for line in contents {
-        let parsed = loading::parse_raw_data(&line).clone();
-        let rec = loading::parse_record(parsed);
+        let parsed = loader::parse_raw_data(&line).clone();
+        let rec = loader::parse_record(parsed);
         results.push(rec);
     }
-    Ok(results)
+    let data_sets = loader::split_data_sets(results, 1000, 100);
+
+    Ok(data_sets)
 }
 
 pub fn display_image(data: Record) {

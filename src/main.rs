@@ -1,7 +1,7 @@
 fn main() {
-    let contents = digits::get_data("train.csv".to_string()).unwrap();
+    let (_training, validation) = digits::get_data("train.csv".to_string()).unwrap();
     let mut count = 0;
-    for line in contents {
+    for line in validation {
         if count > 10 {
             break;
         }
