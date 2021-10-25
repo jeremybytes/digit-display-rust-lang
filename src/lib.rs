@@ -1,5 +1,6 @@
 mod loader; // brings in everything in "loader.rs" as "loader" module
 mod display;
+pub mod recognize;
 
 use std::io;
 
@@ -28,3 +29,4 @@ pub fn display_image(data: Record) {
     print!("{}", image);
     println!("{}", "=".repeat(56));
 }
+
