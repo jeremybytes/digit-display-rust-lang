@@ -5,7 +5,7 @@ fn main() {
         if count > 10 {
             break;
         }
-        println!("{:?}", line);
+        digits::display_image(line);
         count += 1;
     }
     
