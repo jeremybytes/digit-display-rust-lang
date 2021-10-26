@@ -73,22 +73,21 @@ pub fn run(config: Config) {
             _ => recognize::get_euclidean_classifier(training.clone()),
         };
     
-        let test_item = line.clone();
         let tx = tx.clone();
         thread::spawn(move || {
-            let (actual, predicted) = classifier.predict(&test_item);
-            tx.send((actual.clone(), predicted.clone())).unwrap();
+            let (actual, predicted) = classifier.predict(&line);
+            tx.send((actual, predicted)).unwrap();
         });
     }
 
     for _ in 0..config.count {
         let (actual, predicted) = rx.recv().unwrap();
-        if predicted.actual != actual.actual {
-            errors.push((actual.clone(), predicted.clone()));
-        }
-
         println!("Actual: {} {} | Predicted: {}", actual.actual, " ".repeat(46), predicted.actual);
         display_images(&actual, &predicted);
+
+        if predicted.actual != actual.actual {
+            errors.push((actual, predicted));
+        }
     }
 
     let elapsed_time = start.elapsed().as_secs_f32();
@@ -117,7 +116,7 @@ pub fn get_data(filename: String, offset: usize, count: usize) -> io::Result<(Ve
     let mut results = Vec::new();
     let contents = loader::get_raw_data(filename);
     for line in contents {
-        let parsed = loader::parse_raw_data(&line).clone();
+        let parsed = loader::parse_raw_data(&line);
         let rec = loader::parse_record(parsed);
         results.push(rec);
     }

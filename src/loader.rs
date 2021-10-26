@@ -5,7 +5,7 @@ pub fn get_raw_data(filename: String) -> Vec<String> {
     let splits: Vec<&str> = contents.split("\r\n").skip(1).collect();
     let mut results = Vec::new();
     for split in splits {
-        results.push(split.clone().to_string())
+        results.push(split.to_string())
     }
     results
 }
