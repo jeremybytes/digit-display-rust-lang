@@ -38,7 +38,6 @@ pub fn run(config: configuration::Config) {
 
     for _ in 0..config.count {
         let (actual, predicted) = rx.recv().unwrap();
-        println!("Actual: {} {} | Predicted: {}", actual.actual, " ".repeat(46), predicted.actual);
         display_images(&actual, &predicted);
 
         if predicted.actual != actual.actual {
@@ -58,7 +57,6 @@ pub fn run(config: configuration::Config) {
     println!("{}", "=".repeat(56));
 
     for (actual, predicted) in errors {
-        println!("Actual: {} {} | Predicted: {}", actual.actual, " ".repeat(46), predicted.actual);
         display_images(&actual, &predicted);
     }
 
@@ -98,6 +96,7 @@ pub fn display_image(data: &Record) {
 }
 
 pub fn display_images(actual: &Record, predicted: &Record) {
+    println!("Actual: {} {} | Predicted: {}", actual.actual, " ".repeat(46), predicted.actual);
     let image = display::get_images_as_string(actual.image, predicted.image);
     print!("{}", image);
     println!("{}", "=".repeat(115));
