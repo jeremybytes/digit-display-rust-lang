@@ -91,11 +91,11 @@ pub fn run(config: Config) {
         display_images(&actual, &predicted);
     }
 
-    let total_seconds = start.elapsed().as_secs();
+    let elapsed_time = start.elapsed().as_secs_f32();
     
     let total_errors = errors.len();
     println!("Using {} -- Offset: {}   Count: {}", &config.classifier, config.offset, config.count);
-    println!("Total time (seconds): {}", total_seconds);
+    println!("Total time (seconds): {:.3}", elapsed_time);
     println!("Total errors: {}", total_errors);
 
     println!("Press <Enter> to show errors...");
@@ -108,7 +108,7 @@ pub fn run(config: Config) {
         display_images(&actual, &predicted);
     }
     println!("Using {} -- Offset: {}   Count: {}", &config.classifier, config.offset, config.count);
-    println!("Total time (seconds): {}", total_seconds);
+    println!("Total time (seconds): {:.3}", elapsed_time);
     println!("Total errors: {}", total_errors);
     println!("DONE!");
 }
