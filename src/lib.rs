@@ -87,8 +87,8 @@ pub fn run(config: Config) {
             errors.push((actual.clone(), predicted.clone()));
         }
 
-        println!("Predicted: {}   --   Actual: {}", predicted.actual, actual.actual);
-        display_image(&actual);
+        println!("Actual: {} {} | Predicted: {}", actual.actual, " ".repeat(46), predicted.actual);
+        display_images(&actual, &predicted);
     }
 
     let total_seconds = start.elapsed().as_secs();
@@ -104,7 +104,7 @@ pub fn run(config: Config) {
 
     println!("{}", "=".repeat(56));
     for (actual, predicted) in errors {
-        println!("Predicted: {}   --   Actual: {}", predicted.actual, actual.actual);
+        println!("Actual: {} {} | Predicted: {}", actual.actual, " ".repeat(46), predicted.actual);
         display_image(&actual);
     }
     println!("Using {} -- Offset: {}   Count: {}", &config.classifier, config.offset, config.count);
@@ -130,5 +130,11 @@ pub fn display_image(data: &Record) {
     let image = display::get_image_as_string(data.image);
     print!("{}", image);
     println!("{}", "=".repeat(56));
+}
+
+pub fn display_images(actual: &Record, predicted: &Record) {
+    let image = display::get_images_as_string(actual.image, predicted.image);
+    print!("{}", image);
+    println!("{}", "=".repeat(115));
 }
 

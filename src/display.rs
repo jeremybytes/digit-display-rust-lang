@@ -1,3 +1,18 @@
+pub fn get_images_as_string(image1: [u8; 784], image2: [u8; 784]) -> String {
+    let first_image = get_image_as_string(image1);
+    let mut first = first_image.split("\n");
+    let second_image = get_image_as_string(image2);
+    let mut second = second_image.split("\n");
+    let mut result = "".to_string();
+    for _ in 0..28 {
+        result += first.next().unwrap_or_default();
+        result += " | ";
+        result += second.next().unwrap_or_default();
+        result += "\n"
+    }
+    result
+}
+
 pub fn get_image_as_string(image: [u8; 784]) -> String {
     let mut result = String::new();
     let mut count = 0;
