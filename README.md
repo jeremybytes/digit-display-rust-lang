@@ -14,4 +14,6 @@ Functions:
 * Multi-threading
 * Channels
 
-*Note: The threading is pretty ugly, and things are pretty slow right now. But it works. It definitely needs optimization.*
+*Note: The threading is pretty ugly, and things are pretty slow right now. But it works. It definitely needs optimization.*  
+
+*Update: Okay, so it's slow because I was running the debug version. Running the release version is just as fast as the Go (golang) version.*
