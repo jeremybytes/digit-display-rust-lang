@@ -5,7 +5,7 @@ pub struct Classifier {
 }
 
 impl Classifier {
-    pub fn predict<'a>(&self, input: &'a super::Record) -> (&'a super::Record, &super::Record) {
+    pub fn predict<'a>(&self, input: &'a super::Record) -> (super::Record, super::Record) {
         let mut best_total = 100000000;
         let mut best = &super::Record {actual: 0, image: [0; 784]};
         for item in self.training_data.iter() {
@@ -20,7 +20,7 @@ impl Classifier {
             }
         }
     
-        (input, &best)    
+        (input.clone(), best.clone())    
     }
 }
 

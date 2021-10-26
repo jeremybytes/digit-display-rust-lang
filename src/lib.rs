@@ -4,6 +4,8 @@ pub mod recognize;
 
 use std::io;
 use std::time::Instant;
+use std::thread;
+use std::sync::mpsc;
 
 #[derive(Debug,Clone)]
 pub struct Record {
@@ -57,39 +59,55 @@ impl Config {
 
 pub fn run(config: Config) {
     let (training, validation) = get_data("train.csv".to_string(), config.offset, config.count).unwrap();
-    let classifier = match &config.classifier[..] {
-        "manhattan" => recognize::get_manhattan_classifier(training),
-        "euclidean" => recognize::get_euclidean_classifier(training),
-        _ => recognize::get_euclidean_classifier(training),
-    };
+
+    println!("Data load complete");
 
     let start = Instant::now();
     let mut errors = Vec::new();
-    for line in validation {
-        let (actual, predicted) = classifier.predict(&line);
 
+    let (tx, rx) = mpsc::channel();
+    for line in validation {
+        let classifier = match &config.classifier[..] {
+            "manhattan" => recognize::get_manhattan_classifier(training.clone()),
+            "euclidean" => recognize::get_euclidean_classifier(training.clone()),
+            _ => recognize::get_euclidean_classifier(training.clone()),
+        };
+    
+        let test_item = line.clone();
+        let tx = tx.clone();
+        thread::spawn(move || {
+            let (actual, predicted) = classifier.predict(&test_item);
+            tx.send((actual.clone(), predicted.clone())).unwrap();
+        });
+    }
+
+    for _ in 0..config.count {
+        let (actual, predicted) = rx.recv().unwrap();
         if predicted.actual != actual.actual {
             errors.push((actual.clone(), predicted.clone()));
         }
 
         println!("Predicted: {}   --   Actual: {}", predicted.actual, actual.actual);
-        display_image(line);
+        display_image(&actual);
     }
+
     let total_seconds = start.elapsed().as_secs();
     
     let total_errors = errors.len();
-    println!("Using {} -- Offset: {}   Count: {}", &classifier.name, config.offset, config.count);
+    println!("Using {} -- Offset: {}   Count: {}", &config.classifier, config.offset, config.count);
     println!("Total time (seconds): {}", total_seconds);
     println!("Total errors: {}", total_errors);
+
     println!("Press <Enter> to show errors...");
     let mut discard = String::new();
     io::stdin().read_line(&mut discard).unwrap();
+
     println!("{}", "=".repeat(56));
     for (actual, predicted) in errors {
         println!("Predicted: {}   --   Actual: {}", predicted.actual, actual.actual);
-        display_image(actual);
+        display_image(&actual);
     }
-    println!("Using {} -- Offset: {}   Count: {}", &classifier.name, config.offset, config.count);
+    println!("Using {} -- Offset: {}   Count: {}", &config.classifier, config.offset, config.count);
     println!("Total time (seconds): {}", total_seconds);
     println!("Total errors: {}", total_errors);
     println!("DONE!");
@@ -108,9 +126,8 @@ pub fn get_data(filename: String, offset: usize, count: usize) -> io::Result<(Ve
     Ok(data_sets)
 }
 
-pub fn display_image(data: Record) {
+pub fn display_image(data: &Record) {
     let image = display::get_image_as_string(data.image);
-    println!("Actual: {}", data.actual);
     print!("{}", image);
     println!("{}", "=".repeat(56));
 }
