@@ -11,5 +11,7 @@ Functions:
     * Manhattan distance
     * Euclidean distance
 * Output (pretty bad) ASCII art
+* Multi-threading
+* Channels
 
-*Note: I hit a breaking point: threading. The ownership model in Rust is giving me a bit of a problem when I try to spin up threads and use channels to communicate. Still working on a solution.*
+*Note: The threading is pretty ugly, and things are pretty slow right now. But it works. It definitely needs optimization.*
