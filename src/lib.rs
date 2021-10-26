@@ -1,5 +1,6 @@
 mod loader; // brings in everything in "loader.rs" as "loader" module
 mod display;
+pub mod configuration;
 pub mod recognize;
 
 use std::io;
@@ -13,53 +14,8 @@ pub struct Record {
     pub image: [u8; 784],
 }
 
-pub struct Config {
-    pub offset: usize,
-    pub count: usize,
-    pub classifier: String,
-}
-
-impl Config {
-    pub fn new(args: &[String]) -> Config {
-        let mut offset = "".to_string();
-        let mut count = "".to_string();
-        let mut classifier = "".to_string();
-        if args.len() > 1 {
-            offset = args[1].clone();
-        }
-        if args.len() > 2 {
-            count = args[2].clone();
-        }
-        if args.len() > 3 {
-            classifier = args[3].clone().to_lowercase();
-        }
-
-        let offset: usize = match offset.trim().parse() {
-            Ok(num) => num,
-            Err(_) => {
-                println!("Invalid offset, using default (1000)");
-                1000
-            },
-        };
-
-        let count: usize = match count.trim().parse() {
-            Ok(num) => num,
-            Err(_) => {
-                println!("Invalid count, using default (100)");
-                100
-            },
-        };
-        Config {
-            offset,
-            count,
-            classifier,
-        }
-    }
-}
-
-pub fn run(config: Config) {
+pub fn run(config: configuration::Config) {
     let (training, validation) = get_data("train.csv".to_string(), config.offset, config.count).unwrap();
-
     println!("Data load complete");
 
     let start = Instant::now();
@@ -68,8 +24,8 @@ pub fn run(config: Config) {
     let (tx, rx) = mpsc::channel();
     for line in validation {
         let classifier = match &config.classifier[..] {
-            "manhattan" => recognize::get_manhattan_classifier(training.clone()),
-            "euclidean" => recognize::get_euclidean_classifier(training.clone()),
+            "Manhattan Classifier" => recognize::get_manhattan_classifier(training.clone()),
+            "Euclidean Classifier" => recognize::get_euclidean_classifier(training.clone()),
             _ => recognize::get_euclidean_classifier(training.clone()),
         };
     
@@ -91,25 +47,35 @@ pub fn run(config: Config) {
     }
 
     let elapsed_time = start.elapsed().as_secs_f32();
-    
     let total_errors = errors.len();
-    println!("Using {} -- Offset: {}   Count: {}", &config.classifier, config.offset, config.count);
-    println!("Total time (seconds): {:.3}", elapsed_time);
-    println!("Total errors: {}", total_errors);
 
+    print_summary(&config.classifier, config.offset, config.count, elapsed_time, total_errors);
     println!("Press <Enter> to show errors...");
+
     let mut discard = String::new();
     io::stdin().read_line(&mut discard).unwrap();
 
     println!("{}", "=".repeat(56));
+
     for (actual, predicted) in errors {
         println!("Actual: {} {} | Predicted: {}", actual.actual, " ".repeat(46), predicted.actual);
         display_images(&actual, &predicted);
     }
-    println!("Using {} -- Offset: {}   Count: {}", &config.classifier, config.offset, config.count);
+
+    print_summary(&config.classifier, config.offset, config.count, elapsed_time, total_errors);
+    println!("DONE!");
+}
+
+pub fn print_summary(
+    classifier: &str, 
+    offset: usize, 
+    count: usize, 
+    elapsed_time: f32, 
+    total_errors: usize) 
+{
+    println!("Using {} -- Offset: {}   Count: {}", classifier, offset, count);
     println!("Total time (seconds): {:.3}", elapsed_time);
     println!("Total errors: {}", total_errors);
-    println!("DONE!");
 }
 
 pub fn get_data(filename: String, offset: usize, count: usize) -> io::Result<(Vec<Record>, Vec<Record>)> {
