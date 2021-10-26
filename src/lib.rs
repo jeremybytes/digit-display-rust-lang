@@ -105,7 +105,7 @@ pub fn run(config: Config) {
     println!("{}", "=".repeat(56));
     for (actual, predicted) in errors {
         println!("Actual: {} {} | Predicted: {}", actual.actual, " ".repeat(46), predicted.actual);
-        display_image(&actual);
+        display_images(&actual, &predicted);
     }
     println!("Using {} -- Offset: {}   Count: {}", &config.classifier, config.offset, config.count);
     println!("Total time (seconds): {}", total_seconds);
