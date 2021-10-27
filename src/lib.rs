@@ -81,7 +81,13 @@ pub fn get_data(filename: String, offset: usize, count: usize) -> io::Result<(Ve
     let contents = loader::get_raw_data(filename);
     for line in contents {
         let parsed = loader::parse_raw_data(&line);
-        let rec = loader::parse_record(parsed);
+        let rec = match loader::parse_record(parsed) {
+            Ok(val) => val,
+            Err(message) => {
+                eprintln!("Bad record: {}", message);
+                continue;
+            },
+        };
         results.push(rec);
     }
     let data_sets = loader::split_data_sets(results, offset, count);
