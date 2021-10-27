@@ -51,7 +51,7 @@ pub fn split_data_sets(data: Vec<super::Record>, offset: usize, count: usize) ->
 }
 
 #[cfg(test)]
-mod testss {
+mod tests {
     use super::*;
 
     #[test]
