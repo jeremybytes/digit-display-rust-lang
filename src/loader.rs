@@ -1,11 +1,14 @@
 use std::fs;
+use super::Record;
     
 pub fn get_raw_data(filename: String) -> Vec<String> {
     let contents = fs::read_to_string(filename).unwrap();
     let splits: Vec<&str> = contents.split("\n").skip(1).collect();
     let mut results = Vec::new();
     for split in splits {
-        results.push(split.trim().to_string())
+        let line = split.trim().to_string();
+        if line.len() == 0 { continue; }
+        results.push(line);
     }
     results
 }
@@ -24,7 +27,7 @@ pub fn parse_raw_data(raw_data: &str) -> Vec<u8> {
     results
 }
 
-pub fn parse_record(data: Vec<u8>) -> Result<super::Record, String> {
+pub fn parse_record(data: Vec<u8>) -> Result<Record, String> {
     if data.len() != 785 {
         return Err(format!("Incorrect data size; should be 785, found {}", data.len()));
     }
@@ -37,14 +40,14 @@ pub fn parse_record(data: Vec<u8>) -> Result<super::Record, String> {
         index += 1;
     }
     Ok(
-        super::Record {
+        Record {
             actual,
             image,
         }
     )
 }
 
-pub fn split_data_sets(data: Vec<super::Record>, offset: usize, count: usize) -> (Vec<super::Record>, Vec<super::Record>) {
+pub fn split_data_sets(data: Vec<Record>, offset: usize, count: usize) -> (Vec<Record>, Vec<Record>) {
     let training = [&data[..offset], &data[(offset+count)..]].concat();
     let validation = [&data[offset..(offset+count)]].concat();
     (training, validation)
