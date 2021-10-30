@@ -23,7 +23,7 @@ pub fn run(config: configuration::Config) {
 
     let (tx, rx) = mpsc::channel();
 
-    let chunks = loader::chunk_data(validation, 6);
+    let chunks = loader::chunk_data(validation, config.threads);
 
     for chunk in chunks {
         let classifier = match &config.classifier[..] {
