@@ -1,7 +1,27 @@
 use std::fs;
+use std::io;
 use super::Record;
-    
-pub fn get_raw_data(filename: String) -> Vec<String> {
+
+pub fn get_data(filename: String, offset: usize, count: usize) -> io::Result<(Vec<Record>, Vec<Record>)> {
+    let mut results = Vec::new();
+    let contents = get_raw_data(filename);
+    for line in contents {
+        let parsed = parse_raw_data(&line);
+        let rec = match parse_record(parsed) {
+            Ok(val) => val,
+            Err(message) => {
+                eprintln!("Bad record: {}", message);
+                continue;
+            },
+        };
+        results.push(rec);
+    }
+    let data_sets = split_data_sets(results, offset, count);
+
+    Ok(data_sets)
+}
+
+fn get_raw_data(filename: String) -> Vec<String> {
     let contents = fs::read_to_string(filename).unwrap();
     let splits: Vec<&str> = contents.split("\n").skip(1).collect();
     let mut results = Vec::new();
@@ -13,7 +33,7 @@ pub fn get_raw_data(filename: String) -> Vec<String> {
     results
 }
 
-pub fn parse_raw_data(raw_data: &str) -> Vec<u8> {
+fn parse_raw_data(raw_data: &str) -> Vec<u8> {
     let mut results = Vec::new();
     let items: Vec<&str> = raw_data.split(',').collect();
     for item in items
@@ -27,7 +47,7 @@ pub fn parse_raw_data(raw_data: &str) -> Vec<u8> {
     results
 }
 
-pub fn parse_record(data: Vec<u8>) -> Result<Record, String> {
+fn parse_record(data: Vec<u8>) -> Result<Record, String> {
     if data.len() != 785 {
         return Err(format!("Incorrect data size; should be 785, found {}", data.len()));
     }
@@ -47,10 +67,25 @@ pub fn parse_record(data: Vec<u8>) -> Result<Record, String> {
     )
 }
 
-pub fn split_data_sets(data: Vec<Record>, offset: usize, count: usize) -> (Vec<Record>, Vec<Record>) {
+fn split_data_sets(data: Vec<Record>, offset: usize, count: usize) -> (Vec<Record>, Vec<Record>) {
     let training = [&data[..offset], &data[(offset+count)..]].concat();
     let validation = [&data[offset..(offset+count)]].concat();
     (training, validation)
+}
+
+pub fn chunk_data(data: Vec<Record>, chunks: usize) -> Vec<Vec<Record>> {
+    let mut results = Vec::new();
+    let chunk_size = data.len() / chunks;
+    for i in 0..chunks {
+        if i != chunks-1 {
+            let chunk = [&data[(i*chunk_size)..((i+1)*chunk_size)]].concat();
+            results.push(chunk);
+        } else {
+            let chunk = [&data[(i*chunk_size)..(data.len())]].concat();
+            results.push(chunk);
+        }
+    }
+    results
 }
 
 #[cfg(test)]
