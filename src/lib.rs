@@ -16,6 +16,7 @@ pub struct Record {
 
 pub fn run(config: configuration::Config) {
     let (training, validation) = loader::get_data("train.csv".to_string(), config.offset, config.count).unwrap();
+    print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
     println!("Data load complete");
 
     let start = Instant::now();
@@ -81,17 +82,17 @@ pub fn print_summary(
 
 pub fn display_image(data: &Record, scroll: bool) {
     if !scroll {
-        print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
+        print!("{esc}[1;1H", esc = 27 as char);
     }
     let image = display::get_image_as_string(data.image);
     print!("{}/n{}", image, "=".repeat(56));
 }
 
 pub fn display_images(actual: &Record, predicted: &Record, scroll: bool) {
-    if !scroll {
-        print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
-    }
     let image = display::get_images_as_string(actual.image, predicted.image);
+    if !scroll {
+        print!("{esc}[1;1H", esc = 27 as char);
+    }
     println!("Actual: {} {} | Predicted: {}\n{}\n{}", actual.actual, " ".repeat(46), predicted.actual, image, "=".repeat(115));
 }
 
